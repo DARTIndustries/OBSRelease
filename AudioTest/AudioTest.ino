@@ -11,6 +11,17 @@
  *
 */
 
+
+//Frequency (hz)
+int TARGET = 3000;
+int TOLERANCE = 200;
+
+double DUTY_CYCLE = 0.50;
+double DUTY_TOLERANCE = .05;
+int PERIOD = 500; //ms 
+unsigned int VALID = 2; // min valid periods
+
+
 //clipping indicator variables
 boolean clipping = 0;
 
@@ -135,19 +146,69 @@ void checkClipping(){//manage clipping indicator LED
 }
 
 
-void loop(){
+unsigned long periodStart = 0;
+unsigned int hits = 0;
+unsigned int total = 0;
+unsigned int valid = 0;
+
+void loop() {
   
   checkClipping();
-  
   frequency = 38462/float(period);//calculate frequency timer rate/period
   
   //print results
   Serial.print(frequency);
   Serial.println(" hz");
+
+  total++;
+  if (inRange(frequency)) {
+    hits++;
+  }
+
+  //end of a period;
+  if (timeSince(periodStart) >= PERIOD) {
+    if (validPeriod(hits, total)) {
+      valid++;
+      if (valid >= VALID) {
+        //WE DID IT!!
+        unlock();
+        valid = 0;
+      }
+    }
+    
+    //reset
+    hits = 0;
+    total = 0;  
+    periodStart = millis();
+  }
   
-  delay(100);//feel free to remove this if you want
-  
-  //do other stuff here
+  delay(1);
 }
+
+
+
+unsigned long timeSince(unsigned long last) {
+  return millis() - last;
+}
+
+bool inRange(int frequency) {
+  return (frequency >= (TARGET - TOLERANCE) && 
+          frequency <= (TARGET + TOLERANCE));
+}
+
+ //checks if hits/total ratio is within duty cycle tolerance
+bool validPeriod(unsigned int hits, unsigned int total) {
+    double measuredDuty = ((double) hits)/total;
+    return (measuredDuty >= DUTY_CYCLE - DUTY_TOLERANCE &&
+        measuredDuty <=  DUTY_CYCLE + DUTY_TOLERANCE);
+}
+
+//Got the signal
+void unlock() {
+    Serial.println("!!!!!!!!!!!!!!!!!UNLOCKED!!!!!!!!!!!!!!!!!!");
+    //TODO: Unlock code here
+}
+
+
 
 
