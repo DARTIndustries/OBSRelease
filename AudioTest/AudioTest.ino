@@ -13,8 +13,8 @@
 
 
 //Frequency (hz)
-int TARGET = 3000;
-int TOLERANCE = 200;
+int TARGET = 2700;
+int TOLERANCE = 300;
 
 double DUTY_CYCLE = 0.50;
 double DUTY_TOLERANCE = .05;
@@ -44,12 +44,32 @@ byte slopeTol = 3;//slope tolerance- adjust this if you need
 int timerTol = 10;//timer tolerance- adjust this if you need
 
 
+int TEST_PIN = 4; //test pwm singal
+int UNLOCK_PIN = 9;
+
 void setup(){
   
   Serial.begin(9600);
   
   pinMode(13,OUTPUT);//led indicator pin
   pinMode(12,OUTPUT);//output pin
+
+  
+  pinMode(UNLOCK_PIN,OUTPUT);
+  digitalWrite(UNLOCK_PIN, HIGH); //signal
+  
+  pinMode(3,OUTPUT); //g
+  digitalWrite(3, LOW);
+
+  pinMode(8,OUTPUT); //g
+  digitalWrite(8, LOW); //g
+
+  pinMode(10,OUTPUT);//v+
+  digitalWrite(10, HIGH);  //v+
+
+  pinMode(TEST_PIN,OUTPUT); //testpin
+  digitalWrite(TEST_PIN, HIGH); //TESTPIN
+    
   
   cli();//diable interrupts
   
@@ -152,7 +172,8 @@ unsigned int total = 0;
 unsigned int valid = 0;
 
 void loop() {
-  
+
+
   checkClipping();
   frequency = 38462/float(period);//calculate frequency timer rate/period
   
@@ -165,6 +186,9 @@ void loop() {
     hits++;
   }
 
+  //Run Test LED
+  tester(timeSince(periodStart), TEST_PIN);
+  
   //end of a period;
   if (timeSince(periodStart) >= PERIOD) {
     if (validPeriod(hits, total)) {
@@ -183,6 +207,15 @@ void loop() {
   }
   
   delay(1);
+}
+
+int tester(unsigned long timeSince, int pin) {
+  if (timeSince >= PERIOD /2.0) {
+    digitalWrite(pin, HIGH);
+  } else {
+    digitalWrite(pin, LOW);
+  }
+  
 }
 
 
@@ -206,6 +239,7 @@ bool validPeriod(unsigned int hits, unsigned int total) {
 //Got the signal
 void unlock() {
     Serial.println("!!!!!!!!!!!!!!!!!UNLOCKED!!!!!!!!!!!!!!!!!!");
+    digitalWrite(UNLOCK_PIN, LOW);
     //TODO: Unlock code here
 }
 
