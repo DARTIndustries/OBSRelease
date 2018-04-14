@@ -13,13 +13,13 @@
 
 
 //Frequency (hz)
-int TARGET = 2700;
-int TOLERANCE = 300;
+int TARGET = 3200;
+int TOLERANCE = 400;
 
 double DUTY_CYCLE = 0.50;
-double DUTY_TOLERANCE = .05;
+double DUTY_TOLERANCE = .15;
 int PERIOD = 500; //ms 
-unsigned int VALID = 2; // min valid periods
+unsigned int VALID = 3; // min valid periods
 
 
 //clipping indicator variables
@@ -56,7 +56,7 @@ void setup(){
 
   
   pinMode(UNLOCK_PIN,OUTPUT);
-  digitalWrite(UNLOCK_PIN, HIGH); //signal
+  digitalWrite(UNLOCK_PIN, LOW); //signal
   
   pinMode(3,OUTPUT); //g
   digitalWrite(3, LOW);
@@ -183,6 +183,7 @@ void loop() {
 
   total++;
   if (inRange(frequency)) {
+    //Serial.println("In Range");
     hits++;
   }
 
@@ -192,12 +193,15 @@ void loop() {
   //end of a period;
   if (timeSince(periodStart) >= PERIOD) {
     if (validPeriod(hits, total)) {
+      Serial.print("---VALID PERIOD---");
       valid++;
       if (valid >= VALID) {
         //WE DID IT!!
         unlock();
         valid = 0;
       }
+    } else {
+      valid = 0;
     }
     
     //reset
@@ -239,7 +243,7 @@ bool validPeriod(unsigned int hits, unsigned int total) {
 //Got the signal
 void unlock() {
     Serial.println("!!!!!!!!!!!!!!!!!UNLOCKED!!!!!!!!!!!!!!!!!!");
-    digitalWrite(UNLOCK_PIN, LOW);
+    digitalWrite(UNLOCK_PIN, HIGH);
     //TODO: Unlock code here
 }
 
