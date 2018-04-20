@@ -35,7 +35,7 @@ void loop() {
   float v_sensor = raw_mV / SENSOR_180_MV_TO_VOLT;
 
   // get the analog output from the sensor
-  float raw_I = analogRead(A1);
+  float raw_I = analogRead(A2);
 
   // convert analog arduino units to mV units 
   float raw_i_mV = raw_I * MV_TO_ANALOG;
@@ -49,5 +49,5 @@ void loop() {
   Serial.println(i_sensor);
 
 
-  delay(100);
+  delay(10);
 }
