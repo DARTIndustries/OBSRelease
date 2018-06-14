@@ -1,3 +1,6 @@
+//OBS CODE PER 6/14/18!!!
+//ADAM F
+
 //generalized wave freq detection with 38.5kHz sampling rate and interrupts
 //by Amanda Ghassaei
 //https://www.instructables.com/id/Arduino-Frequency-Detection/
